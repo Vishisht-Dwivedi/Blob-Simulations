@@ -6,24 +6,40 @@ let WIDTH = window.innerWidth;
 let HEIGHT = window.innerHeight;
 
 const canvas = document.querySelector("canvas");
-canvas.style.height = `${HEIGHT}px`;
-canvas.style.width = `${WIDTH}px`;
-canvas.height = HEIGHT;
-canvas.width = WIDTH;
 
 const context = canvas.getContext("2d");
 
 class Blob {
-    constructor(x, y, r) {
+    constructor(x, y, r, cpts) {
         this.x = x;
         this.y = y;
         this.r = r;
+        this.cpts = cpts;
         this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
     }
+    translateX(theta) {
+        return this.x + this.r * Math.cos(theta);
+    }
+    translateY(theta) {
+        return this.y + this.r * Math.sin(theta);
+    }
     draw() {
+        const theta = 2 * Math.PI / this.cpts;
         context.beginPath();
-        context.strokeStyle = this.color;
-        context.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
+        context.moveTo(this.translateX(0), this.translateY(0));
+        context.strokeStyle = "white";
+        for (let i = 0; i < this.cpts; i++) {
+            let c1X = this.translateX(i * theta + theta / 2);
+            let c1Y = this.translateY(i * theta + theta / 2);
+            let c2X = this.translateX((i + 1) * theta + theta / 2);
+            let c2Y = this.translateY((i + 1) * theta + theta / 2);
+            let destX = this.translateX((i + 2) * theta);
+            let destY = this.translateY((i + 2) * theta);
+            context.bezierCurveTo(c1X, c1Y, c2X, c2Y, destX, destY);
+        }
+
+        context.fillStyle = this.color;
+        context.fill();
         context.stroke();
     }
     static blobArray = [];
@@ -33,8 +49,8 @@ class Blob {
             let r = Math.max(50, Math.floor(Math.random() * (WIDTH / 10)));
             let x = Math.floor(Math.random() * WIDTH);
             let y = Math.floor(Math.random() * HEIGHT);
-
-            const blob = new Blob(x, y, r);
+            let pts = Math.floor(Math.random() * 10) + 2;
+            const blob = new Blob(x, y, r, pts);
             Blob.blobArray.push(blob);
         }
     }
@@ -45,6 +61,12 @@ class Blob {
     }
 }
 function initialize() {
+    WIDTH = window.innerWidth;
+    HEIGHT = window.innerHeight;
+    canvas.style.height = `${HEIGHT}px`;
+    canvas.style.width = `${WIDTH}px`;
+    canvas.height = HEIGHT;
+    canvas.width = WIDTH;
     Blob.initializeBlobs();
     Blob.drawBlobs();
     // animate();
@@ -57,11 +79,5 @@ function animate() {
 }
 initialize();
 window.addEventListener("resize", () => {
-    WIDTH = window.innerWidth;
-    HEIGHT = window.innerHeight;
-    canvas.style.height = `${HEIGHT}px`;
-    canvas.style.width = `${WIDTH}px`;
-    canvas.height = HEIGHT;
-    canvas.width = WIDTH;
     initialize();
 })
