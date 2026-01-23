@@ -4,6 +4,7 @@ const BLOB_COUNT = 5;
 const THETA_DELTA = 0.01;
 const PHASE_DELTA = 0.01;
 const HEIGHT_FACTOR = 3;
+const MAX_PEAKS = 20;
 
 let WIDTH = window.innerWidth;
 let HEIGHT = window.innerHeight;
@@ -13,10 +14,11 @@ const canvas = document.querySelector("canvas");
 const context = canvas.getContext("2d");
 
 class Blob {
-    constructor(x, y, r, cpts) {
+    constructor(x, y, r, peak_count) {
         this.x = x;
         this.y = y;
         this.r = r;
+        this.peak_count = peak_count;
         this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
     }
     translateX(theta, h = 0) {
@@ -31,7 +33,8 @@ class Blob {
         context.moveTo(this.translateX(0), this.translateY(0));
         context.strokeStyle = "white";
         for (theta = 0; theta < 2 * Math.PI; theta += THETA_DELTA) {
-            const h = Math.sin(this.r * theta) * HEIGHT_FACTOR;
+            const c = this.r / this.peak_count;
+            const h = Math.sin(this.r * theta / c) * HEIGHT_FACTOR;
             const x = this.translateX(theta, h);
             const y = this.translateY(theta, h);
             context.lineTo(x, y);
@@ -47,7 +50,8 @@ class Blob {
             let r = Math.max(50, Math.floor(Math.random() * (WIDTH / 10)));
             let x = Math.floor(Math.random() * WIDTH);
             let y = Math.floor(Math.random() * HEIGHT);
-            const blob = new Blob(x, y, r);
+            let peak_count = Math.floor(Math.random() * MAX_PEAKS) + 2;
+            const blob = new Blob(x, y, r, peak_count);
             Blob.blobArray.push(blob);
         }
     }
