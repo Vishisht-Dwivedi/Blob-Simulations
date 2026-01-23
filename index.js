@@ -1,6 +1,9 @@
 const COLORS = ["#174EA6", "#4285F4", "#EA4335", "#FBBC04", "#34A853", "#D2E3FC", "#FAD2CF", "#FEEFC3", "#CEEAD6"];
 const FRAME_RATE = 60;
 const BLOB_COUNT = 5;
+const THETA_DELTA = 0.01;
+const PHASE_DELTA = 0.01;
+const HEIGHT_FACTOR = 3;
 
 let WIDTH = window.innerWidth;
 let HEIGHT = window.innerHeight;
@@ -14,30 +17,25 @@ class Blob {
         this.x = x;
         this.y = y;
         this.r = r;
-        this.cpts = cpts;
         this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
     }
-    translateX(theta) {
-        return this.x + this.r * Math.cos(theta);
+    translateX(theta, h = 0) {
+        return this.x + (this.r + h) * Math.cos(theta);
     }
-    translateY(theta) {
-        return this.y + this.r * Math.sin(theta);
+    translateY(theta, h = 0) {
+        return this.y + (this.r + h) * Math.sin(theta);
     }
     draw() {
-        const theta = 2 * Math.PI / this.cpts;
+        let theta = 0;
         context.beginPath();
         context.moveTo(this.translateX(0), this.translateY(0));
         context.strokeStyle = "white";
-        for (let i = 0; i < this.cpts; i++) {
-            let c1X = this.translateX(i * theta + theta / 2);
-            let c1Y = this.translateY(i * theta + theta / 2);
-            let c2X = this.translateX((i + 1) * theta + theta / 2);
-            let c2Y = this.translateY((i + 1) * theta + theta / 2);
-            let destX = this.translateX((i + 2) * theta);
-            let destY = this.translateY((i + 2) * theta);
-            context.bezierCurveTo(c1X, c1Y, c2X, c2Y, destX, destY);
+        for (theta = 0; theta < 2 * Math.PI; theta += THETA_DELTA) {
+            const h = Math.sin(this.r * theta) * HEIGHT_FACTOR;
+            const x = this.translateX(theta, h);
+            const y = this.translateY(theta, h);
+            context.lineTo(x, y);
         }
-
         context.fillStyle = this.color;
         context.fill();
         context.stroke();
@@ -49,8 +47,7 @@ class Blob {
             let r = Math.max(50, Math.floor(Math.random() * (WIDTH / 10)));
             let x = Math.floor(Math.random() * WIDTH);
             let y = Math.floor(Math.random() * HEIGHT);
-            let pts = Math.floor(Math.random() * 10) + 2;
-            const blob = new Blob(x, y, r, pts);
+            const blob = new Blob(x, y, r);
             Blob.blobArray.push(blob);
         }
     }
