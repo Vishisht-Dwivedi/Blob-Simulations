@@ -1,7 +1,7 @@
 const COLORS = ["#174EA6", "#4285F4", "#EA4335", "#FBBC04", "#34A853", "#D2E3FC", "#FAD2CF", "#FEEFC3", "#CEEAD6"];
 const FRAME_RATE = 60;
-const BLOB_COUNT = 10;
-const THETA_DELTA = 0.01;
+const BLOB_COUNT = 20;
+const THETA_DELTA = 0.005;
 const PHASE_DELTA = 0.1;
 const HEIGHT_FACTOR = 3;
 const MAX_PEAKS = 10;
